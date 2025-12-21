@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+qrcode
+Pillow
+python-multipart
+jinja2
