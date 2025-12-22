@@ -5,3 +5,5 @@ Pillow
 python-multipart
 jinja2
 psutil
+bless
+requests
