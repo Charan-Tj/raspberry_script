@@ -74,8 +74,10 @@ To make the Pi automatically create a hotspot and start the server on boot:
     - Password: `raspberry_pi`
 
 2.  **Scan & Upload:**
-    - The Pi should automatically display the QR code on boot (if screen attached) or you can run `python project/qr_generator.py`.
-    - Scan and upload.
+    - The Pi will generate two QR codes:
+        *   **`wifi_qr.png`**: Scan this to automatically connect to the `Pi_Share` Wi-Fi.
+        *   **`upload_qr.png`**: Scan this to open the upload page.
+    - Run `python project/qr_generator.py` to regenerate them if needed.
 
 3.  **View Uploaded Files:**
     - **Terminal:** `ls -l project/received_files`

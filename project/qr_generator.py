@@ -36,7 +36,27 @@ def get_ip_address():
     except Exception:
         return "127.0.0.1"
 
-def generate_qr():
+def generate_wifi_qr(ssid, password):
+    """Generate a QR code to connect to the Wi-Fi network."""
+    # WIFI:S:SSID;T:WPA;P:PASSWORD;;
+    wifi_data = f"WIFI:S:{ssid};T:WPA;P:{password};;"
+    print(f"Generating Wi-Fi QR code for SSID: {ssid}")
+    
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(wifi_data)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save("wifi_qr.png")
+    print("Wi-Fi QR code saved as wifi_qr.png")
+    return img
+
+def generate_upload_qr():
     # Construct the URL
     # If running on actual Pi hotspot, use the fixed IP.
     # Otherwise, try to detect IP for testing.
@@ -51,7 +71,7 @@ def generate_qr():
         target_ip = current_ip
 
     url = f"http://{target_ip}:{PORT}{UPLOAD_ENDPOINT}"
-    print(f"Generating QR code for: {url}")
+    print(f"Generating Upload QR code for: {url}")
 
     # Generate QR
     qr = qrcode.QRCode(
@@ -64,19 +84,29 @@ def generate_qr():
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
-    img.save("qrcode.png")
-    print("QR code saved as qrcode.png")
+    img.save("upload_qr.png")
+    print("Upload QR code saved as upload_qr.png")
     
     return img
 
-def show_qr(img):
+def show_qr(img, title="QR Code"):
     # Try to show image using default viewer
     try:
-        img.show()
+        img.show(title=title)
     except Exception as e:
         print(f"Could not display image directly: {e}")
-        print("Please open qrcode.png manually.")
 
 if __name__ == "__main__":
-    img = generate_qr()
-    show_qr(img)
+    # Generate Wi-Fi QR (Matches setup_hotspot.sh config)
+    wifi_img = generate_wifi_qr("Pi_Share", "raspberry_pi")
+    
+    # Generate Upload QR
+    upload_img = generate_upload_qr()
+    
+    print("\nDONE! Two QR codes generated:")
+    print("1. wifi_qr.png   -> Scan to connect to Wi-Fi")
+    print("2. upload_qr.png -> Scan to open Upload Page")
+    
+    # Attempt to show them (OS dependent)
+    show_qr(wifi_img, "Wi-Fi QR")
+    show_qr(upload_img, "Upload QR")
