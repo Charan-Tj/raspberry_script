@@ -133,7 +133,7 @@ class DashboardApp:
         card = ttk.Frame(parent, style="Card.TFrame", padding=20)
         card.pack(fill="x", pady=(0, 20))
         
-        ttk.Label(card, text="Connectivity", style="SubHeader.TLabel", background=THEME_CARD).pack(anchor="w", marginBottom=10)
+        ttk.Label(card, text="Connectivity", style="SubHeader.TLabel", background=THEME_CARD).pack(anchor="w", pady=(0, 10))
         
         # Grid for icons
         grid = ttk.Frame(card, style="Card.TFrame")
@@ -155,7 +155,7 @@ class DashboardApp:
         card = ttk.Frame(parent, style="Card.TFrame", padding=20)
         card.pack(fill="x", pady=(0, 20))
         
-        ttk.Label(card, text="System Health", style="SubHeader.TLabel", background=THEME_CARD).pack(anchor="w", marginBottom=10)
+        ttk.Label(card, text="System Health", style="SubHeader.TLabel", background=THEME_CARD).pack(anchor="w", pady=(0, 10))
         
         self.lbl_cpu = ttk.Label(card, text="CPU: ...", background=THEME_CARD)
         self.lbl_cpu.pack(anchor="w")
@@ -168,7 +168,7 @@ class DashboardApp:
         card = ttk.Frame(parent, style="Card.TFrame", padding=20)
         card.pack(fill="both", expand=True)
         
-        ttk.Label(card, text="Server Logs", style="SubHeader.TLabel", background=THEME_CARD).pack(anchor="w", marginBottom=10)
+        ttk.Label(card, text="Server Logs", style="SubHeader.TLabel", background=THEME_CARD).pack(anchor="w", pady=(0, 10))
         
         self.log_text = tk.Text(card, height=10, bg="#111", fg="#ccc", relief="flat", font=("Consolas", 9))
         self.log_text.pack(fill="both", expand=True)
