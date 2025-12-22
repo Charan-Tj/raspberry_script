@@ -125,9 +125,15 @@ class DashboardApp:
                                    font=("Consolas", 16), background=THEME_CARD, foreground="white")
         self.lbl_creds.pack(pady=10)
         
-        # End Session Button
-        self.btn_end = ttk.Button(self.card_session, text="End Session", style="Danger.TButton", command=self.end_session)
-        self.btn_end.pack(fill="x", pady=10)
+        # Action Buttons
+        btn_frame = ttk.Frame(self.card_session, style="Card.TFrame")
+        btn_frame.pack(fill="x", pady=10)
+        
+        self.btn_start = ttk.Button(btn_frame, text="Start New Session", style="Action.TButton", command=self.start_session)
+        self.btn_start.pack(side="left", fill="x", expand=True, padx=(0, 5))
+        
+        self.btn_end = ttk.Button(btn_frame, text="End Session", style="Danger.TButton", command=self.end_session)
+        self.btn_end.pack(side="right", fill="x", expand=True, padx=(5, 0))
         self.btn_end.state(['disabled'])
 
     def _build_connectivity_card(self, parent):
@@ -247,6 +253,7 @@ class DashboardApp:
             
             self.session_details_frame.pack(fill="both", expand=True, pady=20) # Ensure visible
             self.btn_end.state(['!disabled'])
+            self.btn_start.state(['disabled'])
         else:
             # Idle State
             self.lbl_main_status.config(text="Ready to Connect", foreground=THEME_ACCENT)
@@ -254,6 +261,7 @@ class DashboardApp:
             
             self.session_details_frame.pack_forget() # Hide details
             self.btn_end.state(['disabled'])
+            self.btn_start.state(['!disabled'])
 
     def _set_error_state(self, message):
         self.lbl_main_status.config(text=message, foreground=THEME_WARN)
@@ -265,6 +273,12 @@ class DashboardApp:
             requests.post(f"{API_URL}/control/end_session")
         except:
             messagebox.showerror("Error", "Failed to send command")
+
+    def start_session(self):
+        try:
+            requests.post(f"{API_URL}/control/start_session")
+        except:
+            messagebox.showerror("Error", "Failed to start session")
 
     def tail_logs(self):
         log_file = "server.log"

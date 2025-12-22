@@ -200,6 +200,16 @@ async def get_api_status():
         "connectivity": connectivity
     })
 
+@app.post("/api/control/start_session")
+async def start_session_api():
+    """Start a new session manually from GUI."""
+    session = session_manager.start_session()
+    if session:
+        logger.info(f"Session started manually: {session['id']}")
+        return JSONResponse(content={"status": "success", "session_id": session["id"]})
+    else:
+        return JSONResponse(content={"status": "error", "message": "Failed to start session"}, status_code=500)
+
 @app.post("/api/control/end_session")
 async def end_session_api():
     """Force end the current session from GUI."""
