@@ -8,23 +8,6 @@ import uvicorn
 
 app = FastAPI()
 
-# Directory to save uploaded files
-# Directory to save uploaded files
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "received_files")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# Setup templates
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-
-def get_ip_address():
-    """Get the local IP address, prioritizing the Hotspot interface (wlan0)."""
-    try:
-        # Method 1: Try to get IP of wlan0 specifically (Linux/Pi)
-        import fcntl
-        import struct
-        
-        ifname = "wlan0"
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             return socket.inet_ntoa(fcntl.ioctl(

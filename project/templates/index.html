@@ -3,127 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raspberry Pi File Upload</title>
+    <title>Pi Share</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .header {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            border-radius: 0 0 10px 10px;
+        }
+        .header h1 { margin: 0; font-size: 1.25rem; color: #111827; }
+        .btn-small {
+            background-color: #e5e7eb;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
         }
         .container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 1.5rem;
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            text-align: center;
+        }
+        .stat-item h3 { margin: 0; font-size: 0.875rem; color: #6b7280; }
+        .stat-item p { margin: 0.25rem 0 0; font-size: 1.125rem; font-weight: 600; color: #111827; }
+        
         .upload-area {
-            border: 2px dashed #ccc;
-            padding: 2rem;
+            border: 2px dashed #d1d5db;
+            padding: 3rem 1rem;
             border-radius: 8px;
-            margin-bottom: 1rem;
+            text-align: center;
             cursor: pointer;
-            transition: border-color 0.3s;
+            transition: all 0.2s;
         }
-        .upload-area:hover {
-            border-color: #007bff;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        button {
-            background-color: #007bff;
+        .upload-area:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        .upload-btn {
+            background-color: #3b82f6;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
             width: 100%;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #status {
             margin-top: 1rem;
-            font-weight: bold;
+            cursor: pointer;
         }
-        .success { color: green; }
-        .error { color: red; }
+        .upload-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .modal img { max-width: 250px; }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Pi Share</h1>
+        <button class="btn-small" onclick="showWifiQR()">Share Wi-Fi</button>
+    </div>
+
     <div class="container">
-        <h1>Upload to Pi</h1>
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <p>Click to select a file</p>
-            <input type="file" id="fileInput" onchange="updateFileName()">
-            <p id="fileName" style="font-size: 0.9rem; color: #666;"></p>
+        <!-- Stats Card -->
+        <div class="card">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>Storage</h3>
+                    <p id="storage">Loading...</p>
+                </div>
+                <div class="stat-item">
+                    <h3>RAM</h3>
+                    <p id="ram">Loading...</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Temp</h3>
+                    <p id="temp">Loading...</p>
+                </div>
+            </div>
         </div>
-        <button onclick="uploadFile()">Upload</button>
-        <div id="status"></div>
+
+        <!-- Upload Card -->
+        <div class="card">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <p id="fileName">Tap to select file</p>
+                <input type="file" id="fileInput" hidden onchange="updateFile()">
+            </div>
+            <button class="upload-btn" onclick="uploadFile()" id="upBtn" disabled>Upload File</button>
+            <p id="status" style="text-align: center; margin-top: 1rem; font-size: 0.9rem;"></p>
+        </div>
+    </div>
+
+    <!-- Wi-Fi QR Modal -->
+    <div id="wifiModal" class="modal" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Connect to Pi_Share</h2>
+            <img src="/static/wifi_qr.png" alt="Wi-Fi QR Code">
+            <p>Scan to connect</p>
+            <button class="btn-small" onclick="document.getElementById('wifiModal').style.display='none'">Close</button>
+        </div>
     </div>
 
     <script>
-        function updateFileName() {
+        // Fetch Stats
+        async function loadStats() {
+            try {
+                const res = await fetch('/stats');
+                const data = await res.json();
+                document.getElementById('storage').innerText = `${data.storage_percent}%`;
+                document.getElementById('ram').innerText = `${data.ram_percent}%`;
+                document.getElementById('temp').innerText = `${data.cpu_temp}°C`;
+            } catch (e) { console.error("Stats error", e); }
+        }
+        setInterval(loadStats, 5000);
+        loadStats();
+
+        // File Upload Logic
+        function updateFile() {
             const input = document.getElementById('fileInput');
-            const fileNameDisplay = document.getElementById('fileName');
             if (input.files.length > 0) {
-                fileNameDisplay.textContent = input.files[0].name;
-            } else {
-                fileNameDisplay.textContent = "";
+                document.getElementById('fileName').innerText = input.files[0].name;
+                document.getElementById('upBtn').disabled = false;
             }
         }
 
         async function uploadFile() {
             const input = document.getElementById('fileInput');
-            const statusDiv = document.getElementById('status');
+            const btn = document.getElementById('upBtn');
+            const status = document.getElementById('status');
             
-            if (input.files.length === 0) {
-                statusDiv.textContent = "Please select a file first.";
-                statusDiv.className = "error";
-                return;
-            }
-
-            const file = input.files[0];
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append("file", input.files[0]);
 
-            statusDiv.textContent = "Uploading...";
-            statusDiv.className = "";
+            btn.disabled = true;
+            btn.innerText = "Uploading...";
+            status.innerText = "";
 
             try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    statusDiv.textContent = "Success: " + result.message;
-                    statusDiv.className = "success";
-                    input.value = ""; // Clear input
-                    document.getElementById('fileName').textContent = "";
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+                const result = await res.json();
+                if (res.ok) {
+                    status.innerText = "✅ Upload Successful!";
+                    status.style.color = "green";
+                    input.value = "";
+                    document.getElementById('fileName').innerText = "Tap to select file";
                 } else {
-                    statusDiv.textContent = "Error: " + result.message;
-                    statusDiv.className = "error";
+                    throw new Error(result.message);
                 }
-            } catch (error) {
-                statusDiv.textContent = "Upload failed: " + error.message;
-                statusDiv.className = "error";
+            } catch (e) {
+                status.innerText = "❌ Error: " + e.message;
+                status.style.color = "red";
+            } finally {
+                btn.innerText = "Upload File";
             }
+        }
+
+        function showWifiQR() {
+            document.getElementById('wifiModal').style.display = 'flex';
         }
     </script>
 </body>
