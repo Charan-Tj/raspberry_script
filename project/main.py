@@ -9,7 +9,21 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 
+import logging
+
 app = FastAPI()
+
+# Configure Logging
+LOG_FILE = "server.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Directory to save uploaded files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -81,8 +95,11 @@ async def upload_file(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
+        
+        logger.info(f"File uploaded: {file.filename}")
         return JSONResponse(content={"status": "success", "filename": file.filename, "message": "File uploaded successfully"})
     except Exception as e:
+        logger.error(f"Upload failed: {str(e)}")
         return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
 
 if __name__ == "__main__":
