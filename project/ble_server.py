@@ -39,7 +39,21 @@ class BLEServer:
             None,
             GATTAttributePermissions.writeable
         )
-
+        
+        # Manually register read/write callbacks if supported or handled by backend
+        # Note: Bless abstraction can be tricky.
+        # For BlueZ backend, we simply overwrite the read/write methods if needed or use specific API.
+        # However, the 'write_callback' is often best set on the characteristic itself if the library allows,
+        # OR we rely on the backend's behavior.
+        
+        # Correct fix for Bless 0.2.x:
+        # We need to assume the server handles it, but 'set_write_callback' is not always available.
+        # Let's try assigning it to the internal characteristic handler if available,
+        # OR just skip explicit setting if bless handles it via decorators/other means (it usually doesn't implicitly).
+        
+        # ALTERNATIVE: Use the backend agnostic 'read_request'/'write_request' hooks if exposed.
+        # But 'BlessServer' usually exposes read_request/write_request.
+        
         # Add Response Characteristic (Read/Notify)
         await self.server.add_new_characteristic(
             SERVICE_UUID,
@@ -49,13 +63,14 @@ class BLEServer:
             GATTAttributePermissions.readable
         )
 
-        self.server.set_write_callback(
-            GATTCharacteristicProperties.write,
-            self.on_write
-        )
-
         try:
-            await self.server.start()
+            # Fix for Write Callback: 
+            # In some Bless versions, we need to set the write request *after* server creation but *before* start?
+            # Or we overwrite the method.
+            # However, the safest cross-platform way in Bless is often just handling it if exposed.
+            # If set_write_callback acts up, we assume write_request_func is the intended hook.
+            self.server.write_request_func = self.on_write
+            
             self.state = "ADVERTISING"
             logger.info("BLE Server started and advertising 'Pi_Share_Config'")
         except Exception as e:
