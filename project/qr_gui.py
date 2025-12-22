@@ -81,8 +81,16 @@ class DashboardApp:
         self._build_session_card(left_col)
 
         # Right Column: System Stats & Logs
+        right_col = ttk.Frame(main_frame, width=400) # Set width on Frame
+        right_col.pack(side="right", fill="both", padx=(20, 0)) # Pack without width
+        right_col.pack_propagate(False) # Enforce size if needed, or let content dictate. 
+        # Actually simplest is just packing it normally. 
+        # If we really want width, we use place or pack_propagate.
+        # Let's just remove width=400 from pack and let it be responsive.
+        
+        # Correct fix:
         right_col = ttk.Frame(main_frame)
-        right_col.pack(side="right", fill="both", padx=(20, 0), width=400)
+        right_col.pack(side="right", fill="both", padx=(20, 0))
         
         self._build_connectivity_card(right_col)
         self._build_stats_card(right_col)
