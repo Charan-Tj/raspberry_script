@@ -43,15 +43,39 @@ This project allows you to upload files to your Raspberry Pi via a Wi-Fi hotspot
     python main.py
     ```
 
+## Version 2: Auto-Hotspot & Auto-Start
+
+To make the Pi automatically create a hotspot and start the server on boot:
+
+1.  **Setup Hotspot:**
+    *   **Warning:** This will disconnect your current Wi-Fi.
+    *   Run the setup script:
+        ```bash
+        sudo bash project/setup_hotspot.sh
+        ```
+    *   This creates a Wi-Fi network named **Pi_Share** (Password: `raspberry_pi`).
+
+2.  **Enable Auto-Start Service:**
+    *   Copy the service file:
+        ```bash
+        sudo cp project/pi_share.service /etc/systemd/system/
+        ```
+    *   Reload systemd and enable the service:
+        ```bash
+        sudo systemctl daemon-reload
+        sudo systemctl enable pi_share.service
+        sudo systemctl start pi_share.service
+        ```
+
 ## Usage
 
 1.  **Connect Network:**
-    - Ensure your Pi and Phone are on the same network (e.g., Pi connected to Phone Hotspot, or both on home Wi-Fi).
+    - Connect your phone to the **Pi_Share** Wi-Fi network.
+    - Password: `raspberry_pi`
 
 2.  **Scan & Upload:**
-    - Run `python project/qr_generator.py` on the Pi.
-    - Scan the QR code with your phone.
-    - Upload a file via the Web App.
+    - The Pi should automatically display the QR code on boot (if screen attached) or you can run `python project/qr_generator.py`.
+    - Scan and upload.
 
 3.  **View Uploaded Files:**
     - **Terminal:** `ls -l project/received_files`

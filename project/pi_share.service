@@ -1,0 +1,16 @@
+[Unit]
+Description=Raspberry Pi File Transfer Server
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+# Replace 'pi' with your actual username if different
+User=pi
+WorkingDirectory=/home/pi/raspberry_script
+Environment="PATH=/home/pi/raspberry_script/venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/pi/raspberry_script/venv/bin/python project/main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

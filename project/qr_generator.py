@@ -10,8 +10,24 @@ PORT = 8000
 UPLOAD_ENDPOINT = "/upload"
 
 def get_ip_address():
-    """Get the local IP address to verify if we are on the hotspot network."""
+    """Get the local IP address, prioritizing the Hotspot interface (wlan0)."""
     try:
+        # Method 1: Try to get IP of wlan0 specifically (Linux/Pi)
+        import fcntl
+        import struct
+        
+        ifname = "wlan0"
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            return socket.inet_ntoa(fcntl.ioctl(
+                s.fileno(),
+                0x8915,  # SIOCGIFADDR
+                struct.pack('256s', ifname.encode('utf-8')[:15])
+            )[20:24])
+        except Exception:
+            pass # wlan0 not found or not active
+
+        # Method 2: Connect to external server
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
