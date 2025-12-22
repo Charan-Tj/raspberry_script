@@ -1,5 +1,8 @@
 import os
 import socket
+import psutil
+import fcntl
+import struct
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +11,22 @@ import uvicorn
 
 app = FastAPI()
 
+# Directory to save uploaded files
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_DIR = os.path.join(BASE_DIR, "received_files")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Setup templates
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+# Mount static files (for serving generated QR codes if needed)
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
+
+def get_ip_address():
+    """Get the local IP address, prioritizing the Hotspot interface (wlan0)."""
+    try:
+        # Method 1: Try to get IP of wlan0 specifically (Linux/Pi)
+        ifname = "wlan0"
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             return socket.inet_ntoa(fcntl.ioctl(
@@ -26,6 +45,30 @@ app = FastAPI()
         return ip
     except Exception:
         return "127.0.0.1"
+
+@app.get("/stats")
+async def get_stats():
+    """Return system statistics."""
+    try:
+        storage = psutil.disk_usage('/')
+        mem = psutil.virtual_memory()
+        
+        # CPU Temp (Raspberry Pi specific)
+        try:
+            with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+                temp = round(int(f.read()) / 1000, 1)
+        except:
+            temp = "N/A"
+
+        return {
+            "storage_used": f"{storage.used / (1024**3):.1f} GB",
+            "storage_total": f"{storage.total / (1024**3):.1f} GB",
+            "storage_percent": storage.percent,
+            "ram_percent": mem.percent,
+            "cpu_temp": temp
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/upload", response_class=HTMLResponse)
 async def get_upload_page(request: Request):
