@@ -8,14 +8,28 @@ This project allows you to upload files to your Raspberry Pi via a Wi-Fi hotspot
 - Python 3 installed
 - Flutter (optional, for the native mobile app)
 
-## Installation
+## Installation on Raspberry Pi
 
-1.  **Install Python Dependencies:**
+1.  **Clone the Repository:**
     ```bash
-    pip install -r requirements.txt
+    git clone https://github.com/Charan-Tj/raspberry_script.git
+    cd raspberry_script
+    ```
+
+2.  **Set up Virtual Environment (Required for Pi OS Bookworm):**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+3.  **Install Dependencies:**
+    ```bash
+    pip install -r project/requirements.txt
     ```
 
 ## Running the System
+
+**Note:** Always ensure your virtual environment is active (`source venv/bin/activate`) before running these commands.
 
 1.  **Start the QR Code Generator:**
     This will generate `qrcode.png` and try to display it.
@@ -31,19 +45,17 @@ This project allows you to upload files to your Raspberry Pi via a Wi-Fi hotspot
 
 ## Usage
 
-1.  **Connect to Pi Hotspot:**
-    Ensure your mobile device is connected to the Raspberry Pi's Wi-Fi hotspot (IP `192.168.4.1`).
+1.  **Connect Network:**
+    - Ensure your Pi and Phone are on the same network (e.g., Pi connected to Phone Hotspot, or both on home Wi-Fi).
 
-2.  **Scan & Upload (Web App):**
-    - Scan the QR code with your phone's camera.
-    - It will open the Web App in your browser.
-    - Click "Select File" and then "Upload".
+2.  **Scan & Upload:**
+    - Run `python project/qr_generator.py` on the Pi.
+    - Scan the QR code with your phone.
+    - Upload a file via the Web App.
 
-3.  **Scan & Upload (Flutter App):**
-    - If you built the Flutter app, open it.
-    - Tap "Scan QR Code".
-    - Scan the generated QR code.
-    - Pick a file and upload.
+3.  **View Uploaded Files:**
+    - **Terminal:** `ls -l project/received_files`
+    - **File Manager:** `xdg-open project/received_files`
 
 ## Directory Structure
 
