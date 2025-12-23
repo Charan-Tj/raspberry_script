@@ -5,9 +5,8 @@ Wants=network-online.target
 
 [Service]
 # Replace 'pi' with your actual username if different
-# Run as root to allow nmcli and bluetooth control
-User=root
-# Adjust these paths if your username is different, but keep User=root
+# User=charan (Restored)
+User=charan
 WorkingDirectory=/home/charan/raspberry_script/pi_share_v2
 Environment="PATH=/home/charan/raspberry_script/pi_share_v2/venv/bin:/usr/local/bin:/usr/bin:/bin"
 ExecStart=/home/charan/raspberry_script/pi_share_v2/venv/bin/python project/main.py
